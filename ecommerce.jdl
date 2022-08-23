@@ -1,15 +1,12 @@
+
 application {
   config {
     baseName qrshop,
     applicationType monolith,
     packageName com.qrshop,
     authenticationType jwt,
-    devDatabaseType h2Memory,
     prodDatabaseType postgresql,
-    clientFramework vue,
-    buildTool gradle,
-    cacheProvider ehcache,
-    enableHibernateCache true
+    clientFramework vue
   }
   entities *
 }
@@ -34,26 +31,10 @@ entity Product {
     manageStock Boolean required // defaults to false
     stockStatus StockStatus required // defaults to in stock
     soldIndividually Boolean required
-    backOrders BackOrders required
-    weight Double required
-    virtual Boolean required
-    downloadable Boolean required
-    //downloads Array 
-    downloadLimit Integer
-    downloadExpiry Integer //valid for how many days after purchase
-    shippingRequired Boolean required
-    shippingTaxable Boolean required
-    //shipping class id
 
-    //product parent id
-    parentId Long
-    purchaseNote String required
-    catalogVisibility CatalogVisibility required
-}
-entity ProductImage {
-    filename String required
-    url String required
-    mimeType String required
+    backOrders BackOrders required
+
+    weight Double required
 }
 entity ProductTag {
     name String required
@@ -104,9 +85,7 @@ entity ProductVariation {
     virtual Boolean required
     downloadable Boolean required
 }
-enum CatalogVisibility{
-    VISIBLE,CATALOG,SEARCH,HIDDEN
-}
+
 entity ProductShippingClass {
     name String required
     slug String required
@@ -134,6 +113,9 @@ entity Item {
     quantity Integer required min(0)
     totalPrice BigDecimal required min(0)
 }
+enum ItemStatus {
+    AVAILABLE, OUT_OF_STOCK, BACK_ORDER
+}
 entity ProductOrder {
     placedDate Instant required
     status OrderStatus required
@@ -149,6 +131,7 @@ entity Address {
     country String required
 }
 entity Notification {
+    date Instant required
     details String
     sentDate Instant required
     format NotificationType required
@@ -222,20 +205,16 @@ enum PaymentMethod {
  * One to one relationship.
  */
 relationship OneToOne {
-    Buyer{user(email) required} to User
+    Buyer to User
     Buyer{address required} to Address
-    ProductOrder{transaction(code) required} to Transaction{productOrder}  
-    Refund{transaction(code) required} to Transaction{refund}
-    // Product{category(name) required} to ProductCategory
-    ProductShippingClass to Product{productShippingClass(name) required}
+    ProductOrder{transaction(code) required} to Transaction
+    Refund{transaction(code) required} to Transaction
 }
 /**
  * One to many relationship.
  */
 relationship OneToMany {
     ProductOrder to Item{productOrder}
-
-    Product to ProductImage
 
     //one product can have many attributes
     Product to ProductAttribute
@@ -256,9 +235,15 @@ relationship OneToMany {
 
     Product to ProductCategory
 
+    Product to Image
+
     //one product has many reviews
     Product to ProductReview{product(name) required}
-
+}
+entity Image {
+    filename String required
+    url String required
+    mimeType String required
 }
 /**
  * Many to one relationship. 
@@ -271,3 +256,4 @@ relationship ManyToOne {
 }
 service * with serviceClass
 paginate * with pagination except Notification
+paginate Notification with infinite-scroll
