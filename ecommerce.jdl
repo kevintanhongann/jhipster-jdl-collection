@@ -1,0 +1,273 @@
+application {
+  config {
+    baseName qrshop,
+    applicationType monolith,
+    packageName com.qrshop,
+    authenticationType jwt,
+    devDatabaseType h2Memory,
+    prodDatabaseType postgresql,
+    clientFramework vue,
+    buildTool gradle,
+    cacheProvider ehcache,
+    enableHibernateCache true
+  }
+  entities *
+}
+entity Buyer {
+    name String required
+    phone String required
+    avatarUrl String
+}
+entity Product {
+    name String required
+    slug String required 
+    skuNumber String 
+    description String required
+    shortDescription String required
+    regularPrice BigDecimal required
+    salePrice BigDecimal required
+    published Boolean required
+    dateCreated Instant required
+    dateModified LocalDate required
+    featured Boolean required
+    taxStatus TaxStatus required
+    manageStock Boolean required // defaults to false
+    stockStatus StockStatus required // defaults to in stock
+    soldIndividually Boolean required
+    backOrders BackOrders required
+    weight Double required
+    virtual Boolean required
+    downloadable Boolean required
+    //downloads Array 
+    downloadLimit Integer
+    downloadExpiry Integer //valid for how many days after purchase
+    shippingRequired Boolean required
+    shippingTaxable Boolean required
+    //shipping class id
+
+    //product parent id
+    parentId Long
+    purchaseNote String required
+    catalogVisibility CatalogVisibility required
+}
+entity ProductImage {
+    filename String required
+    url String required
+    mimeType String required
+}
+entity ProductTag {
+    name String required
+    slug String required
+    description String required
+}
+enum BackOrders {
+    YES, NO, NOTIFY
+}
+enum StockStatus {
+    IN_STOCK, OUT_OF_STOCK, ON_BACKORDER
+}
+enum TaxStatus {
+    TAXABLE, SHIPPING, NONE
+}
+//set by admin
+entity ProductCategory {
+    name String required
+    slug String required
+    description String
+}
+entity ProductAttribute {
+    name String required
+    slug String required
+    type String required // defaults to select, i dunno what else can be contained for this
+}
+entity ProductAttributeTerm {
+    name String required
+    slug String required
+    description String required
+    menuOrder Integer required
+}
+entity ProductReview {
+    reviewerName String required
+    reviewerEmail String required
+    review String required
+    rating Integer required
+    status ReviewStatus required
+}
+enum ReviewStatus {
+    APPROVED, HOLD, SPAM, UNSPAM, TRASH, UNTRASH
+}
+entity ProductVariation {
+    regularPrice BigDecimal required
+    salePrice BigDecimal required
+    dateOnSaleFrom LocalDate required
+    dateOnSaleTo LocalDate required
+    virtual Boolean required
+    downloadable Boolean required
+}
+enum CatalogVisibility{
+    VISIBLE,CATALOG,SEARCH,HIDDEN
+}
+entity ProductShippingClass {
+    name String required
+    slug String required
+    description String 
+    count Integer //the number of published products for the resource
+}
+
+entity Coupon {
+    code String required
+    amount BigDecimal required
+    discountType DiscountType required
+    description String required
+    expiry LocalDate required
+    individualUse Boolean required
+    usageLimit Integer required
+    usageLimitPerUser Integer required
+    freeShipping Boolean required
+    minimumAmount String required
+    maximumAmount String required
+}
+enum DiscountType {
+    PERCENT, FIXED_CART, FIXED_PRODUCT
+}
+entity Item {
+    quantity Integer required min(0)
+    totalPrice BigDecimal required min(0)
+}
+entity ProductOrder {
+    placedDate Instant required
+    status OrderStatus required
+    code String required
+    invoiceId Long
+    deliveryOption DeliveryOption required
+}
+entity Address {
+    address1 String required
+    address2 String required
+    city String required
+    state String required
+    country String required
+}
+entity Notification {
+    details String
+    sentDate Instant required
+    format NotificationType required
+    googleNotificationId String
+    productId Long required
+    read Boolean required
+}
+enum NotificationType {
+    EMAIL, SMS, PARCEL
+}
+entity Invoice {
+    code String required
+    date Instant required
+    details String
+    status InvoiceStatus required
+    paymentMethod PaymentMethod required
+    paymentDate Instant required
+    paymentAmount BigDecimal required
+}
+entity Transaction {
+    code String required
+    amount BigDecimal required
+    status TransactionStatus required
+}
+entity TaxRate {
+    country String required
+    state String required
+    postcode String required
+    city String required
+    //should have cities and postcodes also?
+    rate String required
+    name String required
+    shipping Boolean required // defaults to true
+    compound Boolean required // defaults to false
+    priority Integer required // defaults to 1
+}
+entity TaxClass {
+    name String required
+    slug String required
+// be sure to enter STANDARD as a tax class
+}
+entity Refund {
+    amount BigDecimal required
+    reason String required
+    //line items data
+    orderCode String required
+    status RefundStatus required // defaults to pending
+}
+enum RefundStatus {
+    PENDING, COMPLETE
+}
+enum DeliveryOption {
+    SELF_PICKUP, DELIVERY
+}
+enum InvoiceStatus {
+    PAID, ISSUED, CANCELLED
+}
+enum OrderStatus {
+    PENDING, IN_DELIVERY, DELIVERED, CANCELLED
+}
+enum TransactionStatus {
+    PENDING, COMPLETE, REJECTED
+}
+enum PaymentMethod {
+    DEBIT_CARD, CASH, CREDIT_CARD, PAYPAL, CRYPTO
+}
+// enum Size {
+//     XL, L, M, S, XS, NA
+// }
+/**
+ * One to one relationship.
+ */
+relationship OneToOne {
+    Buyer{user(email) required} to User
+    Buyer{address required} to Address
+    ProductOrder{transaction(code) required} to Transaction{productOrder}  
+    Refund{transaction(code) required} to Transaction{refund}
+    // Product{category(name) required} to ProductCategory
+    ProductShippingClass to Product{productShippingClass(name) required}
+}
+/**
+ * One to many relationship.
+ */
+relationship OneToMany {
+    ProductOrder to Item{productOrder}
+
+    Product to ProductImage
+
+    //one product can have many attributes
+    Product to ProductAttribute
+
+    //one product has many variations
+    Product to ProductVariation{product(name) required}
+
+    //product attribute to product attribute terms? XXS is an example of product attribute term, so product attribute is Size
+    ProductAttribute to ProductAttributeTerm{productAttribute(name) required}
+
+    //tax rates and tax classes?
+    TaxClass to TaxRate{taxClass(name) required}
+
+    TaxClass to Product{taxClass(name) required}
+
+    //one product has many product tags?
+    Product to ProductTag
+
+    Product to ProductCategory
+
+    //one product has many reviews
+    Product to ProductReview{product(name) required}
+
+}
+/**
+ * Many to one relationship. 
+ */
+relationship ManyToOne {
+    Notification{user(email) required} to User
+    ProductOrder{user(email) required} to User
+    //refund belongs to user, for sure
+    Refund{user(email) required} to User
+}
+service * with serviceClass
+paginate * with pagination except Notification
