@@ -3,7 +3,7 @@ application {
   config {
     baseName qrshop,
     applicationType monolith,
-    packageName com.qrshop,
+    packageName com.example,
     authenticationType jwt,
     prodDatabaseType postgresql,
     clientFramework vue
