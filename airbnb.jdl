@@ -1,0 +1,47 @@
+entity User {
+  firstName String required,
+  lastName String required,
+  email String required,
+  phoneNumber String
+}
+
+entity Listing {
+  title String required,
+  description String,
+  address String required,
+  price Integer required
+}
+
+entity Reservation {
+  startDate LocalDate required,
+  endDate LocalDate required,
+  numberOfGuests Integer required
+}
+
+entity Review {
+  rating Integer required,
+  description String
+}
+
+relationship OneToOne {
+  User{reservation} to Reservation
+  Listing{reservation} to Reservation
+}
+
+relationship OneToMany {
+  User{review} to Review
+  Listing{review} to Review
+}
+
+relationship ManyToOne {
+  Reservation{user} to User
+  Reservation{listing} to Listing
+  Review{user} to User
+  Review{listing} to Listing
+}
+
+paginate User, Listing, Reservation, Review with pagination
+
+dto * with mapstruct
+
+service * with serviceClass

@@ -1,0 +1,68 @@
+entity Property {
+  name String required,
+  address String required,
+  description String
+}
+
+entity Tenant {
+  firstName String required,
+  lastName String required,
+  email String required,
+  phoneNumber String
+}
+
+entity Landlord {
+  firstName String required,
+  lastName String required,
+  email String required,
+  phoneNumber String
+}
+
+entity Employee {
+  firstName String required,
+  lastName String required,
+  email String required,
+  phoneNumber String
+}
+
+entity Contract {
+  startDate LocalDate required,
+  endDate LocalDate required,
+  monthlyRent Integer required
+}
+
+entity Payment {
+  amount Integer required,
+  paymentDate LocalDate required
+}
+
+entity MaintenanceRequest {
+  description String required,
+  requestDate LocalDate required,
+  completionDate LocalDate
+}
+
+relationship OneToOne {
+  Tenant{contract} to Contract
+  Property{contract} to Contract
+}
+
+relationship OneToMany {
+  Property{tenant} to Tenant
+  Landlord{property} to Property
+  Employee{maintenanceRequest} to MaintenanceRequest
+}
+
+relationship ManyToOne {
+  Tenant{property} to Property
+  Contract{tenant} to Tenant
+  Contract{property} to Property
+  Payment{tenant} to Tenant
+  MaintenanceRequest{employee} to Employee
+}
+
+paginate Tenant, Landlord, Employee, Contract, Payment, MaintenanceRequest with pagination
+
+dto * with mapstruct
+
+service * with serviceClass
