@@ -1,0 +1,48 @@
+entity User {
+  firstName String required,
+  lastName String required,
+  email String required,
+  phoneNumber String
+}
+
+entity Driver {
+  firstName String required,
+  lastName String required,
+  email String required,
+  phoneNumber String
+}
+
+entity Car {
+  make String required,
+  model String required,
+  licensePlate String required
+}
+
+entity Ride {
+  pickUpLocation String required,
+  dropOffLocation String required,
+  distance Integer required,
+  fare Integer required
+}
+
+relationship OneToOne {
+  User{ride} to Ride
+  Driver{ride} to Ride
+  Car{ride} to Ride
+}
+
+relationship OneToMany {
+  Driver{car} to Car
+}
+
+relationship ManyToOne {
+  Ride{user} to User
+  Ride{driver} to Driver
+  Ride{car} to Car
+}
+
+paginate User, Driver, Car, Ride with pagination
+
+dto * with mapstruct
+
+service * with serviceClass
