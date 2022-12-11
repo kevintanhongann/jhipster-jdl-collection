@@ -1,0 +1,43 @@
+entity Investor {
+  firstName String required,
+  lastName String required,
+  email String required,
+  phoneNumber String
+}
+
+entity Company {
+  name String required,
+  description String,
+  website String
+}
+
+entity Investment {
+  amount Integer required,
+  investmentDate LocalDate required
+}
+
+entity Share {
+  numberOfShares Integer required,
+  sharePrice Integer required
+}
+
+relationship OneToOne {
+  Investor{investment} to Investment
+  Company{investment} to Investment
+}
+
+relationship OneToMany {
+  Company{share} to Share
+}
+
+relationship ManyToOne {
+  Investment{investor} to Investor
+  Investment{company} to Company
+  Share{company} to Company
+}
+
+paginate Investor, Company, Investment, Share with pagination
+
+dto * with mapstruct
+
+service * with serviceClass
