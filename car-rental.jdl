@@ -1,0 +1,33 @@
+entity Car {
+    make String,
+    model String,
+    year Integer,
+    dailyRate Integer
+}
+
+entity Customer {
+    firstName String,
+    lastName String,
+    email String
+}
+
+entity Rental {
+    startDate LocalDate,
+    endDate LocalDate,
+    totalCost Integer
+    // car Car,
+    // customer Customer
+}
+
+relationship OneToMany {
+    Car{rentals} to Rental
+}
+
+relationship ManyToOne {
+    Rental{car} to Car
+    Rental{customer} to Customer
+}
+
+dto * with mapstruct
+paginate * with pagination
+

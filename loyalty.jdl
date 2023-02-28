@@ -1,0 +1,42 @@
+entity Customer {
+  name String required
+  email String required
+  points Integer
+}
+
+entity Reward {
+  title String required
+  description TextBlob
+  image ImageBlob
+  points Integer required min(0)
+}
+
+entity Campaign {
+  name String required
+  startDate LocalDate required
+  endDate LocalDate required
+}
+
+entity Redemption {
+  date Instant required
+}
+
+relationship ManyToOne {
+  Customer{reward} to Reward{customer}
+}
+
+relationship ManyToMany {
+  Campaign{reward} to Reward{campaign}
+}
+
+relationship OneToMany {
+  Customer{redemption} to Redemption{customer}
+}
+
+paginate Customer with infinite-scroll
+
+paginate Reward with pagination
+
+service Customer with serviceClass
+
+dto Reward with mapstruct

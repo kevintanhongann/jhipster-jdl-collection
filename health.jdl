@@ -1,0 +1,44 @@
+application {
+  config {
+    baseName healthMonitor
+    applicationType monolith
+    packageName com.example.health
+    databaseType sql
+    devDatabaseType h2Disk
+    prodDatabaseType mysql
+  }
+}
+
+entity Employee {
+  name String required
+  email String required unique
+  age Integer min(18) max(65)
+}
+
+entity HealthRecord {
+  date LocalDate required
+  temperature Float required min(35) max(42)
+  bloodPressure Integer required min(80) max(200)
+}
+
+relationship OneToMany {
+  Employee{healthRecord} to HealthRecord{employee(name)}
+}
+
+paginate HealthRecord with infinite-scroll
+
+dto * with mapstruct
+
+service * with serviceClass
+
+filter *
+
+entity Device {
+  name String required
+  model String required
+  serialNumber String required unique
+}
+
+relationship ManyToMany {
+  Employee{device(name)} to Device{employee(name)}
+}

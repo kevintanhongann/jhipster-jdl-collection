@@ -1,0 +1,35 @@
+entity User {
+  firstName String required,
+  lastName String required,
+  email String required,
+  phoneNumber String
+}
+
+entity Profile {
+  bio String,
+  age Integer,
+  gender String
+}
+
+entity Match {
+  matchDate LocalDate required
+}
+
+relationship OneToOne {
+  User{profile} to Profile
+  User{match} to Match
+}
+
+relationship OneToMany {
+  User{user} to User
+}
+
+relationship ManyToOne {
+  Match{user} to User
+}
+
+paginate User, Profile, Match with pagination
+
+dto * with mapstruct
+
+service * with serviceClass
