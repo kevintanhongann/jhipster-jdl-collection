@@ -1,0 +1,42 @@
+application {
+  config {
+    baseName EmployeeHealthMonitoring
+    applicationType monolith
+    authenticationType jwt
+    databaseType sql
+    devDatabaseType h2Disk
+    prodDatabaseType postgresql
+  }
+}
+
+entity Employee {
+  id Long required
+  name String required minlength(3) maxlength(50)
+  email String required pattern(/^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$/)
+}
+
+entity Device {
+  id Long required
+  serialNumber String required unique
+}
+
+entity HealthData {
+  id Long required
+  steps Integer min(0)
+  heartRate Integer min(40) max(200)
+  sleepHours Double min(0) max(24)
+}
+
+relationship OneToOne {
+  Employee{device} to Device{employee}
+}
+
+relationship OneToMany {
+  Employee{healthData} to HealthData{employee}
+}
+
+paginate HealthData with pagination
+
+service * with serviceClass
+
+dto * with mapstruct
