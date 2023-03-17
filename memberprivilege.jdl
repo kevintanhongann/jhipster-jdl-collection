@@ -1,0 +1,48 @@
+application {
+  config {
+    baseName member-loyalty
+    packageName com.example.memberloyalty
+    authenticationType jwt
+    databaseType sql
+    devDatabaseType h2Disk
+    prodDatabaseType mysql
+    searchEngine elasticsearch
+    buildTool maven
+    serverPort 8080
+    enableSwaggerCodegen true
+  }
+  entities *
+}
+
+entity Member {
+  firstName String required
+  lastName String required
+  email String required unique
+  password String required
+  points Integer required 
+  tier TierType required
+}
+
+enum TierType {
+  BASIC("basic")
+  SILVER("silver")
+  GOLD("gold")
+  PLATINUM("platinum")
+}
+
+entity Reward {
+  name String required
+  pointsCost Integer required
+  description String
+}
+
+entity Redemption {
+  date Instant required
+  reward Reward required
+  member Member required
+}
+
+relationship ManyToOne {
+  Redemption{member} to Member
+  Redemption{reward} to Reward
+}
