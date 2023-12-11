@@ -1,0 +1,46 @@
+// Define your entities
+entity Invoice {
+    invoiceNumber String required minlength(3) maxlength(20)
+    amount Double required
+    issueDate LocalDate required
+    // Add other fields relevant to your invoices
+}
+
+entity Customer {
+    name String required
+    email String required unique
+    // Add other customer-related fields
+}
+
+entity Product {
+    name String required
+    price Double required
+    // Add other product-related fields
+}
+
+// Define relationships
+relationship OneToMany {
+    Invoice{customer} to Customer
+}
+
+relationship ManyToOne {
+    Invoice{product} to Product
+}
+
+// Set application options
+application {
+    config {
+        baseName EInvoicingApp
+        packageName com.mycompany.einvoicing
+        applicationType monolith
+        databaseType sql
+        prodDatabaseType postgresql
+        buildTool maven
+        authenticationType jwt
+        enableTranslation true
+        testFrameworks [protractor]
+    }
+    entities * // Include all defined entities
+}
+
+// Run 'jhipster import-jdl my-einvoicing-app.jh' to generate the application

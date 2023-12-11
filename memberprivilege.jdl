@@ -38,8 +38,15 @@ entity Reward {
 
 entity Redemption {
   date Instant required
-  reward Reward required
-  member Member required
+//   reward Reward required
+//   member Member required
+}
+
+/**
+ * One to one relationship.
+ */
+relationship OneToOne {
+    Entity1 to Entity2
 }
 
 relationship ManyToOne {

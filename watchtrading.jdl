@@ -1,0 +1,61 @@
+application {
+  config {
+    baseName watchtrading
+    packageName com.example.watchtrading
+    applicationType monolith
+  }
+  entities *
+}
+
+entity Watch {
+  brand String required
+  model String required
+  description TextBlob
+  price BigDecimal required
+  condition WatchCondition required
+  year Integer
+  photo ImageBlob
+//   owner User required
+  comments Comment
+  orders Order
+}
+
+enum WatchCondition {
+  NEW
+  USED_EXCELLENT
+  USED_GOOD
+  USED_FAIR
+}
+
+
+entity Comment {
+  content TextBlob required
+  date Instant required
+//   user User required
+}
+
+entity Order {
+  date Instant required
+  buyer User required
+  seller User required
+  watch Watch required
+}
+
+relationship ManyToOne {
+  Watch{owner} to User
+}
+
+relationship OneToMany {
+  Watch{comments} to Comment{watch}
+  Watch{orders} to Order{watch}
+}
+
+relationship ManyToOne {
+  Comment{user} to User
+}
+
+relationship ManyToOne {
+  Order{buyer} to User
+  Order{seller} to User
+  Order{watch} to Watch
+}
